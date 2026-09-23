@@ -13,7 +13,7 @@ public class Tenant
     public string Name { get; set; } = string.Empty;
 
     [Required, MaxLength(100)]
-    public stringSlug { get; set; } = string.Empty;
+    public string Slug { get; set; } = string.Empty;
 
     [MaxLength(500)]
     public string? Tagline { get; set; }
