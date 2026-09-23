@@ -17,28 +17,29 @@ public class OrdersController : ControllerBase
     public async Task<ActionResult> List(Guid tenantId, [FromQuery] OrderStatus? status, CancellationToken ct)
     {
         var q = _db.Orders.AsNoTracking().Where(o => o.TenantId == tenantId);
-        if (status.HasValue) q = q.Where(o => o.Status == status);
+        if (status.HasValue) q = q.Where(o => o.Status == status.Value);
 
-        var orders = await q
+        var rows = await q
             .OrderByDescending(o => o.CreatedAt)
             .Take(100)
-            .Select(o => new
-            {
-                o.Id,
-                o.OrderNumber,
-                Status = o.Status.ToString(),
-                o.CustomerName,
-                o.CustomerEmail,
-                o.ShipCity,
-                o.ShipState,
-                o.Subtotal,
-                o.ShippingTotal,
-                o.GrandTotal,
-                o.MatchedZoneId,
-                o.CreatedAt,
-                o.PaidAt
-            })
             .ToListAsync(ct);
+
+        var orders = rows.Select(o => new
+        {
+            o.Id,
+            o.OrderNumber,
+            Status = o.Status.ToString(),
+            o.CustomerName,
+            o.CustomerEmail,
+            o.ShipCity,
+            o.ShipState,
+            o.Subtotal,
+            o.ShippingTotal,
+            o.GrandTotal,
+            o.MatchedZoneId,
+            o.CreatedAt,
+            o.PaidAt
+        }).ToList();
 
         return Ok(orders);
     }
