@@ -3,6 +3,12 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+
 builder.Services.AddControllers()
     .AddJsonOptions(o =>
     {
@@ -12,7 +18,12 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new() { Title = "LocalPress API", Version = "v1", Description = "Print & POD OS for independent shops — Spatialytics family" });
+    c.SwaggerDoc("v1", new()
+    {
+        Title = "LocalPress API",
+        Version = "v1",
+        Description = "Print & POD OS for independent shops — Spatialytics family"
+    });
 });
 
 var provider = builder.Configuration["DatabaseProvider"] ?? "Sqlite";
@@ -45,26 +56,18 @@ await SeedData.InitializeAsync(app.Services);
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "LocalPress v1"));
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseCors();
 app.MapControllers();
 
-app.MapGet("/", () => Results.Ok(new
+app.MapGet("/api/health", () => Results.Ok(new
 {
     name = "LocalPress API",
     status = "running",
     swagger = "/swagger",
-    demoTenant = "lakes-area-print",
-    endpoints = new[]
-    {
-        "GET /api/tenants",
-        "GET /api/tenants/{slug}",
-        "GET /api/tenants/{tenantId}/products",
-        "GET /api/tenants/{tenantId}/orders",
-        "POST /api/tenants/{tenantId}/orders",
-        "POST /api/tenants/{tenantId}/orders/{orderId}/status",
-        "GET /api/tenants/{tenantId}/zones",
-        "POST /api/tenants/{tenantId}/zones/match"
-    }
+    demoTenant = "lakes-area-print"
 }));
 
 app.Run();
