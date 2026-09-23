@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LocalPress — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">LP</div>
+        <div>
+          <div class="brand-name">LocalPress</div>
+          <div class="brand-tag">Local Print. Real Impact.</div>
+        </div>
+      </div>
+      <nav>
+        <a class="nav-item active" data-view="dashboard">Dashboard</a>
+        <a class="nav-item" data-view="orders">Orders <span class="badge" id="orderBadge">0</span></a>
+        <a class="nav-item" data-view="products">Products</a>
+        <a class="nav-item" data-view="zones">Zones</a>
+      </nav>
+      <div class="sidebar-foot" id="shopLabel">Loading shop…</div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">Dashboard</h1>
+          <p class="subtitle" id="pageSub">Overview of your local print operations</p>
+        </div>
+        <div class="topbar-right">
+          <span class="pill" id="apiStatus">API…</span>
+          <a class="btn ghost" href="/swagger" target="_blank">Swagger</a>
+        </div>
+      </header>
+      <section id="view-dashboard" class="view">
+        <div class="stats" id="stats"></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><h2>Orders pipeline</h2><button class="linkish" data-view="orders">View all →</button></div>
+            <div id="dashOrders" class="table-wrap">Loading…</div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h2>Zones</h2><button class="linkish" data-view="zones">Manage →</button></div>
+            <div id="dashZones">Loading…</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Popular products</h2></div>
+          <div class="products-row" id="dashProducts">Loading…</div>
+        </div>
+      </section>
+      <section id="view-orders" class="view hidden">
+        <div class="card">
+          <div class="card-head"><h2>All orders</h2><button class="btn" id="btnNewOrder">+ Quick order</button></div>
+          <div id="ordersTable" class="table-wrap">Loading…</div>
+        </div>
+      </section>
+      <section id="view-products" class="view hidden">
+        <div class="card">
+          <div class="card-head"><h2>Catalog</h2></div>
+          <div class="products-row" id="productsGrid">Loading…</div>
+        </div>
+      </section>
+      <section id="view-zones" class="view hidden">
+        <div class="card">
+          <div class="card-head"><h2>Delivery zones</h2></div>
+          <div id="zonesList">Loading…</div>
+          <div class="zone-test">
+            <h3>Test address match</h3>
+            <div class="row">
+              <label>Lat <input id="testLat" type="number" step="any" value="46.36" /></label>
+              <label>Lng <input id="testLng" type="number" step="any" value="-94.20" /></label>
+              <button class="btn" id="btnMatch">Match zone</button>
+            </div>
+            <pre id="matchResult" class="result">—</pre>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
