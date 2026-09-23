@@ -1,0 +1,15 @@
+# Optional: Postgres + PostGIS for production-like spatial
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: localpress
+      POSTGRES_PASSWORD: localpress
+      POSTGRES_DB: localpress
+    ports:
+      - "5432:5432"
+    volumes:
+      - lp_pg:/var/lib/postgresql/data
+
+volumes:
+  lp_pg:
