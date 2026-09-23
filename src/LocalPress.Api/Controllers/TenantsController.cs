@@ -42,7 +42,7 @@ public class TenantsController : ControllerBase
         });
     }
 
-    public record CreateTenantRequest(string Name, stringSlug, string? Tagline, string? City, string? State);
+    public record CreateTenantRequest(string Name, string Slug, string? Tagline, string? City, string? State);
 
     [HttpPost]
     public async Task<ActionResult<object>> Create([FromBody] CreateTenantRequest req, CancellationToken ct)
@@ -54,7 +54,7 @@ public class TenantsController : ControllerBase
         var tenant = new Tenant
         {
             Name = req.Name.Trim(),
-            Slug = slug,
+           Slug = slug,
             Tagline = req.Tagline,
             City = req.City,
             State = req.State
