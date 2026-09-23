@@ -12,6 +12,11 @@ async function api(path, opts) {
   return res.json();
 }
 
+async function safeApi(path, fallback) {
+  try { return await api(path); }
+  catch (e) { console.warn(path, e); return fallback; }
+}
+
 function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
   document.getElementById('view-' + name)?.classList.remove('hidden');
@@ -105,14 +110,18 @@ async function load() {
   }
 
   const tenants = await api('/api/tenants');
+  if (!tenants?.length) {
+    document.getElementById('shopLabel').textContent = 'No shops yet';
+    return;
+  }
   state.tenant = tenants[0];
   state.tenantId = state.tenant.id;
 
   const tid = state.tenantId;
   const [products, orders, zones] = await Promise.all([
-    api(`/api/tenants/${tid}/products`),
-    api(`/api/tenants/${tid}/orders`),
-    api(`/api/tenants/${tid}/zones`)
+    safeApi(`/api/tenants/${tid}/products`, []),
+    safeApi(`/api/tenants/${tid}/orders`, []),
+    safeApi(`/api/tenants/${tid}/zones`, [])
   ]);
   state.products = products;
   state.orders = orders;
@@ -120,7 +129,7 @@ async function load() {
   render();
 }
 
-document.getElementById('btnMatch').addEventListener('click', async () => {
+document.getElementById('btnMatch')?.addEventListener('click', async () => {
   const lat = parseFloat(document.getElementById('testLat').value);
   const lng = parseFloat(document.getElementById('testLng').value);
   try {
@@ -136,7 +145,7 @@ document.getElementById('btnMatch').addEventListener('click', async () => {
   }
 });
 
-document.getElementById('btnNewOrder').addEventListener('click', async () => {
+document.getElementById('btnNewOrder')?.addEventListener('click', async () => {
   if (!state.products.length) return alert('No products');
   const p = state.products[0];
   try {
