@@ -6,6 +6,7 @@
   <title>LocalPress — Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -19,70 +20,113 @@
         </div>
       </div>
       <nav>
-        <a class="nav-item active" data-view="dashboard">Dashboard</a>
-        <a class="nav-item" data-view="orders">Orders <span class="badge" id="orderBadge">0</span></a>
-        <a class="nav-item" data-view="products">Products</a>
-        <a class="nav-item" data-view="zones">Zones</a>
+        <a class="nav-item active" data-view="dashboard"><span class="nav-ico">▦</span> Dashboard</a>
+        <a class="nav-item" data-view="orders"><span class="nav-ico">☰</span> Orders <span class="badge" id="orderBadge">0</span></a>
+        <a class="nav-item" data-view="products"><span class="nav-ico">▢</span> Products</a>
+        <a class="nav-item" data-view="zones"><span class="nav-ico">◎</span> Zones (map)</a>
+        <a class="nav-item muted"><span class="nav-ico">▣</span> Inventory</a>
+        <a class="nav-item muted"><span class="nav-ico">✎</span> Designs</a>
+        <a class="nav-item muted"><span class="nav-ico">⚙</span> Settings</a>
       </nav>
-      <div class="sidebar-foot" id="shopLabel">Loading shop…</div>
+      <div class="sidebar-promo">
+        <div class="promo-icon">🌲</div>
+        <div class="promo-text">Proudly printing local.<br><span id="promoPlace">Brainerd, MN</span></div>
+      </div>
     </aside>
-    <main class="main">
+
+    <div class="workspace">
       <header class="topbar">
-        <div>
-          <h1 id="pageTitle">Dashboard</h1>
-          <p class="subtitle" id="pageSub">Overview of your local print operations</p>
+        <div class="shop-pill" id="shopPill">
+          <span class="shop-ico">🏪</span>
+          <span id="shopLabel">Loading shop…</span>
         </div>
         <div class="topbar-right">
           <span class="pill" id="apiStatus">API…</span>
           <a class="btn ghost" href="/swagger" target="_blank">Swagger</a>
+          <div class="avatar" title="Shop owner">LP</div>
         </div>
       </header>
-      <section id="view-dashboard" class="view">
-        <div class="stats" id="stats"></div>
-        <div class="grid-2">
-          <div class="card">
-            <div class="card-head"><h2>Orders pipeline</h2><button class="linkish" data-view="orders">View all →</button></div>
-            <div id="dashOrders" class="table-wrap">Loading…</div>
+
+      <main class="main">
+        <section id="view-dashboard" class="view">
+          <div class="page-head">
+            <h1>Dashboard</h1>
+            <p class="subtitle">Overview of your local print operations</p>
           </div>
-          <div class="card">
-            <div class="card-head"><h2>Zones</h2><button class="linkish" data-view="zones">Manage →</button></div>
-            <div id="dashZones">Loading…</div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-head"><h2>Popular products</h2></div>
-          <div class="products-row" id="dashProducts">Loading…</div>
-        </div>
-      </section>
-      <section id="view-orders" class="view hidden">
-        <div class="card">
-          <div class="card-head"><h2>All orders</h2><button class="btn" id="btnNewOrder">+ Quick order</button></div>
-          <div id="ordersTable" class="table-wrap">Loading…</div>
-        </div>
-      </section>
-      <section id="view-products" class="view hidden">
-        <div class="card">
-          <div class="card-head"><h2>Catalog</h2></div>
-          <div class="products-row" id="productsGrid">Loading…</div>
-        </div>
-      </section>
-      <section id="view-zones" class="view hidden">
-        <div class="card">
-          <div class="card-head"><h2>Delivery zones</h2></div>
-          <div id="zonesList">Loading…</div>
-          <div class="zone-test">
-            <h3>Test address match</h3>
-            <div class="row">
-              <label>Lat <input id="testLat" type="number" step="any" value="46.36" /></label>
-              <label>Lng <input id="testLng" type="number" step="any" value="-94.20" /></label>
-              <button class="btn" id="btnMatch">Match zone</button>
+          <div class="stats" id="stats"></div>
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head">
+                <h2>Orders pipeline <span class="live-dot"></span> <span class="live-label">Live</span></h2>
+                <button class="linkish" data-view="orders">View all orders →</button>
+              </div>
+              <div id="dashOrders" class="table-wrap">Loading…</div>
             </div>
-            <pre id="matchResult" class="result">—</pre>
+            <div class="card map-card">
+              <div class="card-head">
+                <h2>Same-day delivery zones <span class="live-dot"></span> <span class="live-label">Live</span></h2>
+                <button class="linkish" data-view="zones">View zones →</button>
+              </div>
+              <div id="dashMap" class="mini-map"></div>
+              <div class="map-legend" id="dashZoneLegend">Loading zones…</div>
+            </div>
           </div>
-        </div>
-      </section>
-    </main>
+          <div class="card">
+            <div class="card-head">
+              <h2>Popular products</h2>
+              <button class="linkish" data-view="products">View all products →</button>
+            </div>
+            <div class="products-row" id="dashProducts">Loading…</div>
+          </div>
+        </section>
+
+        <section id="view-orders" class="view hidden">
+          <div class="page-head">
+            <h1>Orders</h1>
+            <p class="subtitle">Production pipeline</p>
+          </div>
+          <div class="card">
+            <div class="card-head">
+              <h2>All orders</h2>
+              <button class="btn" id="btnNewOrder">+ Quick order</button>
+            </div>
+            <div id="ordersTable" class="table-wrap">Loading…</div>
+          </div>
+        </section>
+
+        <section id="view-products" class="view hidden">
+          <div class="page-head">
+            <h1>Products</h1>
+            <p class="subtitle">Your catalog</p>
+          </div>
+          <div class="card">
+            <div class="products-row" id="productsGrid">Loading…</div>
+          </div>
+        </section>
+
+        <section id="view-zones" class="view hidden">
+          <div class="page-head">
+            <h1>Zones</h1>
+            <p class="subtitle">Map-based delivery areas</p>
+          </div>
+          <div class="card">
+            <div id="zonesMap" class="full-map"></div>
+            <div id="zonesList" class="zones-list"></div>
+            <div class="zone-test">
+              <h3>Test address match</h3>
+              <div class="row">
+                <label>Lat <input id="testLat" type="number" step="any" value="46.36" /></label>
+                <label>Lng <input id="testLng" type="number" step="any" value="-94.20" /></label>
+                <button class="btn" id="btnMatch">Match zone</button>
+              </div>
+              <pre id="matchResult" class="result">—</pre>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
   </div>
+  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
   <script src="/app.js"></script>
 </body>
 </html>
