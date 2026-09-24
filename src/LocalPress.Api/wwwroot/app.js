@@ -145,7 +145,12 @@ function render() {
 }
 
 function initMap(containerId) {
-  if (typeof maplibregl === 'undefined') return null;
+  const el = document.getElementById(containerId);
+  if (!el || typeof maplibregl === 'undefined') {
+    console.warn('Map init skipped', containerId, typeof maplibregl);
+    if (el) el.innerHTML = '<div style="display:grid;place-items:center;height:100%;color:#94a3b8;font-size:0.85rem">Map loading…</div>';
+    return null;
+  }
   const map = new maplibregl.Map({
     container: containerId,
     style: 'https://tiles.openfreemap.org/styles/dark',
@@ -154,6 +159,12 @@ function initMap(containerId) {
     attributionControl: false
   });
   map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+  map.on('load', () => {
+    map.resize();
+    paintZones(map, state.zones);
+  });
+  setTimeout(() => map.resize(), 200);
+  setTimeout(() => map.resize(), 800);
   return map;
 }
 
@@ -274,6 +285,15 @@ document.getElementById('btnNewOrder')?.addEventListener('click', async () => {
   }
 });
 
-dashMap = initMap('dashMap');
-zonesMap = initMap('zonesMap');
+function bootMaps() {
+  if (typeof maplibregl === 'undefined') {
+    console.warn('MapLibre not loaded yet, retrying…');
+    setTimeout(bootMaps, 300);
+    return;
+  }
+  if (!dashMap) dashMap = initMap('dashMap');
+  if (!zonesMap) zonesMap = initMap('zonesMap');
+}
+
+bootMaps();
 load();
